@@ -5,14 +5,15 @@ from fractions import Fraction
 import fractions
 import re
 import random
-import plotly.plotly as py
-import plotly.graph_objs as go
+#import plotly.plotly as py
+#import plotly.graph_objs as go
 
 #random fonts used throughout the code
 TITLE_FONT = ("Helvetica", 14, "bold")
 APP_FONT = ("Avenir", 18, "bold")
 ANSWER = ("Helvetica", 14, "bold")
 curruser = None
+    
 
 class login:
     
@@ -22,11 +23,6 @@ class login:
         self.createContainer()
         
     def createContainer(self):
-        try:
-            self.container.destroy()
-        except:
-            pass
-        
         self.container = Frame(self.parent)
         self.container.pack(side="top", fill="both", expand=True)
         self.container.configure(background="lightblue")
@@ -46,11 +42,11 @@ class login:
         self.password.pack()
 
         #login button
-        self.loginButton = Button(self.container, text="Login", fg='blue', command=lambda: self.navigateApp(mainMenu))
+        self.loginButton = Button(self.container, text="Login", fg='blue', command=lambda: self.checkCredentials())
         self.loginButton.pack(side=RIGHT, padx=50)
         
         #create button
-        self.createbutton = Button(self.container, text="Create New Account", command=lambda:self.navigateApp(createUser))
+        self.createbutton = Button(self.container, text="Create New Account", command=lambda:createUser.createContainer(self))
         self.createbutton.pack(side=LEFT, padx=30)
 
     def invalid(self):
@@ -58,6 +54,12 @@ class login:
         self.window.minsize(width=200, height=75)
         Label(self.window, fg='red', text="Error!").pack()
         Label(self.window, text="Invalid username or password \n Please try again").pack()
+
+    def noentry(self):
+        self.window = tk.Toplevel(self.parent)
+        self.window.minsize(width=200, height=75)
+        Label(self.window, fg='red', text="Error!").pack()
+        Label(self.window, text="Nothing was entered for \n Username or Password \n \n Please try again").pack()
 
     def checkCredentials(self):
         """
@@ -67,6 +69,7 @@ class login:
         For: login container
         
         """
+        
         with sqlite3.connect("Users.db") as conn:
             c = conn.cursor()
 
@@ -95,7 +98,7 @@ class login:
                 curruser = user
         
         if success == True:
-            self.mainmenu()
+            mainMenu.createContainer(self)
         else:
             if len(user) == 0 and len(pw) == 0:
                 self.noentry()
@@ -106,6 +109,11 @@ class login:
                 
 
     def navigateApp(self, whereTo):
+        try:
+            self.createContainer.destroy()
+            self.container.destroy()
+        except:
+            pass
         root = Tk()
         app = whereTo(root)
         root.configure(background="lightblue")
@@ -125,6 +133,11 @@ class createUser:
         Create New User
         Users enter new username and new password
         """
+        try:
+            login.createContainer.destroy()
+            login.container.destroy()
+        except:
+            pass
     
         self.container = Frame(self.parent)
         self.container.pack()
@@ -150,7 +163,7 @@ class createUser:
         self.createbutton.pack(side= RIGHT, padx=10)
 
         #button for going back to login
-        self.loginButton1 = Button(self.container, text="Back to Login", command=lambda: self.navigateApp(login))
+        self.loginButton1 = Button(self.container, text="Back to Login", command=lambda: login.createContainer(self))
         self.loginButton1.pack(side=LEFT, padx=10)
         
     def createuser(self):
@@ -225,6 +238,11 @@ class createUser:
         Label(self.window, text="Nothing was entered for \n Username or Password \n \n Please try again").pack()    
 
     def navigateApp(self, whereTo):
+        try:
+            self.createContainer.destroy()
+            self.container.destroy()
+        except:
+            pass
         root = Tk()
         app = whereTo(root)
         root.configure(background="lightblue")
@@ -239,6 +257,10 @@ class mainMenu:
         self.createContainer()
 
     def createContainer(self):
+        try:
+            self.container.destroy()
+        except:
+            pass
 
         self.container = Frame(self.parent)
         self.container.pack()
@@ -250,22 +272,22 @@ class mainMenu:
         Label(self.container, text="Main Menu", font=TITLE_FONT, background="lightblue").pack()
         Label(self.container, text="", background="lightblue").pack()
         
-        self.solverbutton = Button(self.container, text="Solver", background="lightgoldenrod", command=lambda: self.navigateApp(solver))
+        self.solverbutton = Button(self.container, text="Solver", background="lightgoldenrod", command=lambda: solver.createContainer(self))
         self.solverbutton.pack()
         
         Label(self.container, text="", background="lightblue").pack()
         
-        self.solverbutton = Button(self.container, text="Quizzer",background="coral", command=lambda: self.navigateApp(quizzer))
+        self.solverbutton = Button(self.container, text="Quizzer",background="coral", command=lambda: quizzer.createContainer(self))
         self.solverbutton.pack()
         
         Label(self.container, text="", background="lightblue").pack()
 
-        self.solverbutton = Button(self.container, text="Results", background="lightgreen", command=lambda: self.navigateApp(results))
+        self.solverbutton = Button(self.container, text="Results", background="lightgreen", command=lambda: results.createContainer(self))
         self.solverbutton.pack()
 
         Label(self.container, text="", background="lightblue").pack()
 
-        self.solverbutton = Button(self.container, text="Log Out", command=lambda: self.navigateApp(login))
+        self.solverbutton = Button(self.container, text="Log Out", command=lambda: login.createContainer(self))
         self.solverbutton.pack()
 
         Label(self.container, text="", background="lightblue").pack()
@@ -284,6 +306,10 @@ class solver:
         self.createContainer()
 
     def createContainer(self):
+        try:
+            self.container.destroy()
+        except:
+            pass
     
         self.container = Frame(self.parent)
         self.container.pack(expand=True)
@@ -296,7 +322,7 @@ class solver:
         
         Label(self.container, text="Solver", font=TITLE_FONT, background="lightgoldenrod").grid(row=1,columnspan=6)
 
-        self.solverbutton = Button(self.container, text="Back to Main Menu", background="lightblue", command=lambda: self.navigateApp(mainMenu))
+        self.solverbutton = Button(self.container, text="Back to Main Menu", background="lightblue", command=lambda: mainMenu.createContainer(self))
         self.solverbutton.grid(row=2, columnspan=6)
 
         Label(self.container, text="", font=TITLE_FONT, background="lightgoldenrod").grid(row=3,columnspan=6)
@@ -452,6 +478,11 @@ class quizzer:
         Grades the answers accordingly.
         
         """
+
+        try:
+            self.container.destroy()
+        except:
+            pass
         self.flag = StringVar()
         self.flag = False
 
@@ -468,7 +499,7 @@ class quizzer:
         Label(self.container, text="Quizzer", fg='purple',font=TITLE_FONT, background="coral").grid(row=1,columnspan=7)
 
         #COMMAND IS THE FUNCTION TO BE CALL
-        self.button1 = Button(self.container, text="Back to Main Menu", background="lightblue", command=lambda: self.mainmenu())
+        self.button1 = Button(self.container, text="Back to Main Menu", background="lightblue", command=lambda: mainMenu.createContainer(self))
         self.button1.grid(row=3,columnspan=7)
 
         #space
@@ -482,10 +513,14 @@ class quizzer:
 
         self.num1 = StringVar()
         self.num2 = StringVar()
-        self.tkvar1 = StringVar(self.container)
-        self.tkvar1.set("+")
+        global oper
+        oper = StringVar()
+        oper.set("+")
+        #self.tkvar1 = StringVar()
+        #self.tkvar1.set("+")
         self.num3 = StringVar() #input
-
+        global user
+        user = StringVar()
         #box1
         self.box1 = Entry(self.container, width=5, text= self.num1, state = 'disabled', disabledforeground = 'darkblue', font=("Avenir", 12, "bold"))
         self.box1.grid(row=9, column=1)
@@ -495,7 +530,7 @@ class quizzer:
         self.box2.grid(row=9, column=3)
 
         #operator
-        self.option = OptionMenu(self.container, self.tkvar1, "+", "-", "*", "/")
+        self.option = OptionMenu(self.container, oper, "+", "-", "*", "/")
         self.option.grid(row=9, column=2)
 
         Label(self.container, text="Enter your answer as a fraction ex: 3/4 or  whole number if apply.", background="coral", fg="DarkBlue", font=("Avenir",12, "bold")).grid(row=12,columnspan=6)
@@ -505,19 +540,19 @@ class quizzer:
         #box for user's answer
         Label(self.container, text="Your Answer:", background="coral", font=("Avenir", 12, "bold")).grid(row=8, column=5)
 
-        self.box3 = Entry(self.container,width=8, text= self.num3, highlightbackground="LightBlue")
+        self.box3 = Entry(self.container,width=8, textvariable= user, highlightbackground="LightBlue")
         self.box3.grid(row=9, column=5)
 
         Label(self.container, text="", font=TITLE_FONT, background="coral").grid(row=16,columnspan=1)#space
 
         #BUTTOMS
-        self.button2 = Button(self.container, text="Generate",background="purple", fg="white", command=lambda: self.generateRandom(self.flag))
+        self.button2 = Button(self.container, text="Generate",background="purple", fg="white", command=lambda: quizzer.generateRandom(self, self.flag))
         self.button2.grid(row=17, column=1)
 
-        self.button3 = Button(self.container, text="Check",background="lightseagreen", command=lambda: self.checkAnswer(self.box3))
+        self.button3 = Button(self.container, text="Check",background="lightseagreen", command=lambda: quizzer.checkAnswer(self.box3, self.flag1))
         self.button3.grid(row=17, column=3)
 
-        self.button4 = Button(self.container, text="Next" , background="springgreen2",command=lambda: self.navigateApp(quizzer))
+        self.button4 = Button(self.container, text="Next" , background="springgreen2",command=lambda: quizzer.createContainer(self))
         self.button4.grid(row=17, column=5)
 
         Label(self.container, text="", background="coral", font=TITLE_FONT).grid(row=18,columnspan=1)
@@ -529,9 +564,9 @@ class quizzer:
         For: generate button
         
         """
-        if self.flag is True:
+        if other is True:
             return
-        self.flag = True
+        other = True
 
         a = random.randint(1, 10)
         b = random.randint(2, 10)
@@ -542,7 +577,8 @@ class quizzer:
         d1 = str(b)
         n2 = str(c)
         d2 = str(d)
-
+        global r1
+        global r2
         r1 = n1 + "/" + d1
         r2 = n2 + "/" + d2
         
@@ -575,12 +611,12 @@ class quizzer:
         Raise Exception: Index, UnboundLocalError, TypeError
         
         """
-        if self.flag1 is True:
+        if other is True:
             return
-        self.flag1 = True
+        other = True
         
         patt = re.compile(r'(-?\d+)/?(-?\d+)?([+\-*/])(-?\d+)/?(-?\d+)?')
-        self.s = str(self.box1.get()) + str(self.tkvar1.get()) + str(self.box2.get())   
+        self.s = str(r1) + str(oper.get()) + str(r2)   
         
         if self.s is None:
             raise TypeError
@@ -654,7 +690,7 @@ class quizzer:
             print("Error, try again.")
        
         #Getting user answer
-        self.user = str(self.box3.get())
+        self.user = str(user.get())
         #print("input:",self.user)
         patt2 = re.compile(r'(-?\d+)/?(-?\d+)?')
         try:
@@ -678,20 +714,20 @@ class quizzer:
         if Zstr == Rstr and round(R_decimal, 3) == round(Z_decimal, 3):
             #print ("1 point: correct and reduced")
             #Label(self.container, text="Good job!  1 point: correct and reduced", fg='DarkOrchid2', bg='aquamarine2', font=("Times",17)).grid(row=19,column=2)
-            self.correct()
-            self.updatescore(curruser, O, 1.0)
+            quizzer.correct(self)
+            quizzer.updatescore(self, curruser, O, 1.0)
             
         elif round(R_decimal, 3) == round(Z_decimal, 3):
             #print (".5 points: correct but not reduced. Correct Answer:", R)
             #Label(self.container, text=".5 points: correct but not reduced. Correct Answer: "+ Rstr , fg='DarkOrchid2', bg='aquamarine2', font=("Times",17)).grid(row=19,column=2)
-            self.partiallycorrect()
-            self.updatescore(curruser, O, 0.5)
+            quizzer.partiallycorrect(self)
+            quizzer.updatescore(self, curruser, O, 0.5)
             
         else:
             #print ("0 points: Incorrect answer. Correct Answer:", R) 
             #Label(self.container, text="0 points: Incorrect answer. Correct Answer: "+ str(R) , fg='VioletRed1', bg='azure', font=("Times",17)).grid(row=19,column=2)
-            self.wrong()
-            self.updatescore(curruser, O, 0)
+            quizzer.wrong(self)
+            quizzer.updatescore(self, curruser, O, 0)
             
 
             
@@ -699,19 +735,19 @@ class quizzer:
     #Quizzer Pop Up Windows
     #--------------------------------------------------------------
     def correct(self):
-        self.window = tk.Toplevel(self.parent)
+        self.window = tk.Toplevel(self)
         self.window.minsize(width=200, height=75)
         Label(self.window, fg='green', text="Correct!").pack()
         Label(self.window, text="Good job! You've earned 1 point for \n Correct and reduced fraction").pack()
 
     def partiallycorrect(self):
-        self.window = tk.Toplevel(self.parent)
+        self.window = tk.Toplevel(self)
         self.window.minsize(width=200, height=75)
         Label(self.window, fg='blue', text="Partially Correct").pack()
         Label(self.window, text="You were close! You've earned 0.5 point for it.\n Fraction is equivalent to the correct answer \n But, fraction is not reduced. \n Correct Answer is: " + Rstr).pack()
 
     def wrong(self):
-        self.window = tk.Toplevel(self.parent)
+        self.window = tk.Toplevel(self)
         self.window.minsize(width=200, height=75)
         Label(self.window, fg='red', text="Incorrect!").pack()
         Label(self.window, text="Incorrect! You've earned 0 point for \n Fraction is not equivalent to the correct answer \n Correct Answer is: " + Rstr).pack()
@@ -738,8 +774,6 @@ class quizzer:
         score REAL(20));
         ''')
         
-        username = curruser
-        
         
         query = "SELECT * FROM newDatabase WHERE username = '%s'" % username
 
@@ -750,10 +784,6 @@ class quizzer:
         except Exception as e:
             print("DATABASE ERROR!", e)
 
-        userresults = results[0][4]
-
-        #query1 = "UPDATE newDatabase SET score='%d' WHERE username='%s'" %((userresults + point), username)
-        #query1 = "INSERT INTO newDatabase VALUES(?, ?, ?, ?)", (username, None, operator, score)
         c.execute("INSERT INTO newDatabase (username, password, operator, score) VALUES (?, ?, ?, ?)", (username, None, operator, point))
         conn.commit()
         conn.close()
@@ -880,6 +910,11 @@ class results:
         self.createContainer()
 
     def createContainer(self):
+
+        try:
+            self.container.destroy()
+        except:
+            pass
         # Delete old container and create new one to display results
         self.container = Frame(self.parent)
         self.container.pack()
@@ -887,6 +922,9 @@ class results:
         # Display container Description        
         Label(self.container, text="The Fraction Helper", font=APP_FONT, fg='green', background="lightblue").pack()
         Label(self.container, text="Results", font=TITLE_FONT, background="lightblue").pack()
+        # Main menu button
+        self.new_button = Button(self.container, text="Back to Main Menu", command=lambda: mainMenu.createContainer(self))
+        self.new_button.pack()
         
         # Plotly API - 
         # -----------------------------------------------------------------------------------------------
@@ -920,7 +958,7 @@ class results:
         py.plot(fig, filename='angled-text-bar')
 
         # Main menu button
-        self.new_button = Button(self.container, text="Back to Main Menu", command=lambda: navigateApp(mainMenu))
+        self.new_button = Button(self.container, text="Back to Main Menu", command=lambda: mainMenu.createContainer(self))
         self.new_button.pack()
 
     def overallavg(self):
@@ -976,7 +1014,6 @@ class results:
 
         conn.commit()
         conn.close()
-
     def useravg(self, username):
         """
         Takes in username and the point earned from quizzer
