@@ -13,15 +13,16 @@ TITLE_FONT = ("Helvetica", 14, "bold")
 APP_FONT = ("Avenir", 18, "bold")
 ANSWER = ("Helvetica", 14, "bold")
 curruser = None
-    
 
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# LOGIN CLASS
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class login:
-    
     def __init__(self, parent):
         self.parent = parent
         self.parent.minsize(width=300, height=200)
         self.createContainer()
-        
+    
     def createContainer(self):
         self.container = Frame(self.parent)
         self.container.pack(side="top", fill="both", expand=True)
@@ -46,7 +47,7 @@ class login:
         self.loginButton.pack(side=RIGHT, padx=50)
         
         #create button
-        self.createbutton = Button(self.container, text="Create New Account", command=lambda:createUser.createContainer(self))
+        self.createbutton = Button(self.container, text="Create New Account", command=lambda: self.navigateApp(createUser))
         self.createbutton.pack(side=LEFT, padx=30)
 
     def invalid(self):
@@ -76,10 +77,10 @@ class login:
         c.execute('''
         CREATE TABLE IF NOT EXISTS newDatabase(
         userID INTEGER PRIMARY KEY AUTOINCREMENT,
-        username VARCHAR(20) NOT NULL,
+        username VARCHAR(20),
         password VARCHAR(20),
-        operator VARCHAR(1) NOT NULL,
-        score REAL(20) NOT NULL);
+        operator VARCHAR(1),
+        score REAL(20));
         ''')
         
         user = str(self.username.get())
@@ -109,18 +110,13 @@ class login:
                 
 
     def navigateApp(self, whereTo):
-        try:
-            self.createContainer.destroy()
-            self.container.destroy()
-        except:
-            pass
-        root = Tk()
-        app = whereTo(root)
-        root.configure(background="lightblue")
+        self.container.destroy()
+        whereTo.createContainer(self)
         
 
-#------------------------------------------------------------------------------------------------------------------------------
-
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# CREATE NEW USER CLASS
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class createUser:
 
     def __init__(self, parent):
@@ -159,11 +155,11 @@ class createUser:
         Label(self.container, text="", background="lightblue").pack()
 
         #button for create
-        self.createbutton = Button(self.container, text="Create", fg='blue', command=lambda: self.createuser())
+        self.createbutton = Button(self.container, text="Create", fg='blue', command=lambda: createUser.createuser(self))
         self.createbutton.pack(side= RIGHT, padx=10)
 
         #button for going back to login
-        self.loginButton1 = Button(self.container, text="Back to Login", command=lambda: login.createContainer(self))
+        self.loginButton1 = Button(self.container, text="Back to Login", command=lambda: self.navigateApp(login))
         self.loginButton1.pack(side=LEFT, padx=10)
         
     def createuser(self):
@@ -185,10 +181,10 @@ class createUser:
         c.execute('''
         CREATE TABLE IF NOT EXISTS newDatabase(
         userID INTEGER PRIMARY KEY AUTOINCREMENT,
-        username VARCHAR(20) NOT NULL,
+        username VARCHAR(20),
         password VARCHAR(20),
-        operator VARCHAR(1) NOT NULL,
-        score REAL(20) NOT NULL);
+        operator VARCHAR(1),
+        score REAL(20));
         ''')
         
         try:
@@ -238,18 +234,13 @@ class createUser:
         Label(self.window, text="Nothing was entered for \n Username or Password \n \n Please try again").pack()    
 
     def navigateApp(self, whereTo):
-        try:
-            self.createContainer.destroy()
-            self.container.destroy()
-        except:
-            pass
-        root = Tk()
-        app = whereTo(root)
-        root.configure(background="lightblue")
+        self.container.destroy()
+        whereTo.createContainer(self)
 
         
-#------------------------------------------------------------------------------------------------------------------------------
-
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# MAIN MENU CLASS
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class mainMenu:
     def __init__(self, parent):
         self.parent = parent
@@ -287,18 +278,18 @@ class mainMenu:
 
         Label(self.container, text="", background="lightblue").pack()
 
-        self.solverbutton = Button(self.container, text="Log Out", command=lambda: login.createContainer(self))
+        self.solverbutton = Button(self.container, text="Log Out", command=lambda: self.navigateApp(login))
         self.solverbutton.pack()
 
         Label(self.container, text="", background="lightblue").pack()
 
     def navigateApp(self, whereTo):
-        root = Tk()
-        app = whereTo(root)
-        root.configure(background="lightblue")
+        self.container.destroy()
+        whereTo.createContainer(self)
     
-#------------------------------------------------------------------------------------------------------------------------------
-
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# SOLVER CLASS
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class solver:
     def __init__(self, parent):
         self.parent = parent
@@ -359,7 +350,7 @@ class solver:
         self.solve = StringVar()
         #self.solve.set(str(self.solve0.get()) + "/" + str(self.solve1.get()) + str(self.tkvar.get()) + str(self.solve3.get()) + "/" + str(self.solve4.get()))
 
-        self.solvebutton = Button(self.container, text="Solve", fg='white', background="blue", command=lambda: self.answer())
+        self.solvebutton = Button(self.container, text="Solve", fg='white', background="blue", command=lambda: solver.answer(self))
         self.solvebutton.grid(row=10, column=4)
 
         Label(self.container, text="", background="lightgoldenrod").grid(row=11, columnspan=1)
@@ -463,8 +454,9 @@ class solver:
         app = whereTo(root)
         root.configure(background="lightblue")
 
-#------------------------------------------------------------------------------------------------------------------------------
-
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# QUIZZER CLASS
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class quizzer:
     def __init__(self, parent):
         self.parent = parent
@@ -486,9 +478,9 @@ class quizzer:
         self.flag = StringVar()
         self.flag = False
 
-        self.flag1=StringVar()
-        self.flag1=False
-
+        global alreadyClicked
+        alreadyClicked = False
+        
         self.container = Frame(self.parent)
         self.container.pack(expand=True)
         self.container.grid_rowconfigure(0, weight=0)
@@ -549,7 +541,7 @@ class quizzer:
         self.button2 = Button(self.container, text="Generate",background="purple", fg="white", command=lambda: quizzer.generateRandom(self, self.flag))
         self.button2.grid(row=17, column=1)
 
-        self.button3 = Button(self.container, text="Check",background="lightseagreen", command=lambda: quizzer.checkAnswer(self.box3, self.flag1))
+        self.button3 = Button(self.container, text="Check",background="lightseagreen", command=lambda: quizzer.checkAnswer(self.box3, alreadyClicked))
         self.button3.grid(row=17, column=3)
 
         self.button4 = Button(self.container, text="Next" , background="springgreen2",command=lambda: quizzer.createContainer(self))
@@ -564,9 +556,9 @@ class quizzer:
         For: generate button
         
         """
-        if other is True:
+        if self.flag is True:
             return
-        other = True
+        self.flag = True
 
         a = random.randint(1, 10)
         b = random.randint(2, 10)
@@ -598,7 +590,7 @@ class quizzer:
         Label(self.window, text="No answer was entered! \n Please click '\'Next'\' and try again").pack()
 
     #check quiz's answer 
-    def checkAnswer(self, other):
+    def checkAnswer(self, alreadyClicked):
         """
         Takes in fraction problem and user's answer and checks the answer
 
@@ -611,9 +603,10 @@ class quizzer:
         Raise Exception: Index, UnboundLocalError, TypeError
         
         """
-        if other is True:
+        
+        if alreadyClicked == True:
             return
-        other = True
+        alreadyClicked = True
         
         patt = re.compile(r'(-?\d+)/?(-?\d+)?([+\-*/])(-?\d+)/?(-?\d+)?')
         self.s = str(r1) + str(oper.get()) + str(r2)   
@@ -901,7 +894,9 @@ class quizzer:
         app = whereTo(root)
         root.configure(background="lightblue")
         
-#------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# RESULTS CLASS 
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class results:
 
     def __init__(self, parent):
@@ -928,8 +923,8 @@ class results:
         
         # Plotly API - 
         # -----------------------------------------------------------------------------------------------
-        self.useravg(curruser)
-        self.overallavg()
+        quizzer.useravg(self, curruser)
+        quizzer.overallavg(self)
         
         trace0 = go.Bar(
             x=['+', '-','*','/', 'all'],
@@ -957,116 +952,6 @@ class results:
         fig = go.Figure(data=data, layout=layout)
         py.plot(fig, filename='angled-text-bar')
 
-        # Main menu button
-        self.new_button = Button(self.container, text="Back to Main Menu", command=lambda: mainMenu.createContainer(self))
-        self.new_button.pack()
-
-    def overallavg(self):
-        """
-        Takes in username and the point earned from quizzer
-        and puts it into the database into the score section
-
-        For: quizzer
-
-        Raise Exception: Exception
-        
-        """
-        with sqlite3.connect("Users.db") as conn:
-            c = conn.cursor()
-        
-        c.execute('''
-        CREATE TABLE IF NOT EXISTS newDatabase(
-        userID INTEGER PRIMARY KEY AUTOINCREMENT,
-        username VARCHAR(20),
-        password VARCHAR(20),
-        operator VARCHAR(1),
-        score REAL(20));
-        ''')
-        
-        username = curruser
-        
-        
-        query = "SELECT AVG(score) FROM newDatabase WHERE operator = '+'" 
-
-        try:
-            c.execute(query)
-            global overallplus
-            overallplus = c.fetchall()
-            
-        except Exception as e:
-            print("DATABASE ERROR!", e)
-
-        c.execute("SELECT AVG(score) FROM newDatabase WHERE operator = '-'")
-        global overallsub
-        overallsub = c.fetchall()
-
-        c.execute("SELECT AVG(score) FROM newDatabase WHERE operator = '*'")
-        global overallmul
-        overallmul = c.fetchall()
-
-        c.execute("SELECT AVG(score) FROM newDatabase WHERE operator = '/'")
-        global overalldiv
-        overalldiv = c.fetchall()
-
-        c.execute("SELECT AVG(score) FROM newDatabase")
-        global overallall
-        overallall = c.fetchall()
-
-        conn.commit()
-        conn.close()
-    def useravg(self, username):
-        """
-        Takes in username and the point earned from quizzer
-        and puts it into the database into the score section
-
-        For: quizzer
-
-        Raise Exception: Exception
-        
-        """
-        with sqlite3.connect("Users.db") as conn:
-            c = conn.cursor()
-        
-        c.execute('''
-        CREATE TABLE IF NOT EXISTS newDatabase(
-        userID INTEGER PRIMARY KEY AUTOINCREMENT,
-        username VARCHAR(20),
-        password VARCHAR(20),
-        operator VARCHAR(1),
-        score REAL(20));
-        ''')
-        
-        username = curruser
-        
-        query = "SELECT AVG(score) FROM newDatabase WHERE username = '%s' AND operator = '+'" % username
-
-        try:
-            c.execute(query)
-            global userplus
-            userplus = c.fetchall()
-            
-        except Exception as e:
-            print("DATABASE ERROR!", e)
-
-        c.execute("SELECT AVG(score) FROM newDatabase WHERE username = '%s' AND operator = '-'" % username)
-        global usersub
-        usersub = c.fetchall()
-
-        c.execute("SELECT AVG(score) FROM newDatabase WHERE username = '%s' AND operator = '*'" % username)
-        global usermul
-        usermul = c.fetchall()
-
-        c.execute("SELECT AVG(score) FROM newDatabase WHERE username = '%s' AND operator = '/'" % username)
-        global userdiv
-        userdiv = c.fetchall()
-
-        c.execute("SELECT AVG(score) FROM newDatabase WHERE username = '%s'" % username)
-        global userall
-        userall = c.fetchall()
-
-        conn.commit()
-        conn.close()
-        
     def navigateApp(self, whereTo):
         root = Tk()
         app = whereTo(root)
@@ -1079,4 +964,4 @@ if __name__ == "__main__":
     root = Tk()
     app = login(root)
     root.configure(background="lightblue")
-    root,mainloop()
+    root.mainloop()
